@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Student Attendance</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    body {
+      background-color: #b6b6b6;
+      font-family: Arial, sans-serif;
+      text-align: center;
+    }
+    .container {
+      margin-top: 50px;
+    }
+    .hidden {
+      display: none;
+    }
+    input, textarea, button {
+      margin: 5px;
+      padding: 8px;
+      width: 80%;
+      max-width: 300px;
+    }
+    button {
+      cursor: pointer;
+    }
+    table {
+      margin: auto;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+
+    <!-- Student ID Section -->
+    <div id="studentIdSection">
+      <img src="image.jpeg" style="width:100px; height:100px; display:block; margin:0 auto 10px">
+      <h2>Enter Student ID</h2>
+      <input type="number" id="studentId" placeholder="Enter ID">
+      <button class="btn-primary" onclick="submitId()">Submit</button>
+    </div>
+    
+    <!-- Options Section -->
+    <div id="optionsSection" class="hidden">
+      <h3>Choose an Option</h3>
+      <button class="btn-secondary" onclick="showSection('leaveSection')">Leave</button>
+      <button class="btn-secondary" onclick="showSection('mealsSection')">Meals</button><br>
+      <iframe src = "fee.html" width = "300" height ="400"></iframe>
+      <button class="btn-danger" onclick="resetApp()">Logout</button>
+    </div>
+
+    <!-- Leave Request Section -->
+    <div id="leaveSection" class="hidden">
+    <h3>Leave Request</h3>
+    <p>Student ID: <span id="leaveStudentId"></span></p>
+    <form id = "leaveform">
+        <div class = "form-group">
+            <input type="number" id="room" placeholder="Room Number" min="1" max="00" required><br>
+        </div>
+        <div class = "form-group">
+            <label>From Date:</label>
+            <input type="date" id="fromDate" required><br>
+        </div>
+        <div class = "form-group">
+            <label>To Date:</label>
+            <input type="date" id="toDate" required><br>
+        </div>
+        <div class="form-group">
+            <label>Reason for Leave:</label>
+            <select id="reasonDropdown" onchange="toggleOtherReason()" required>
+                <option value="">Select a reason</option>
+                <option value="hometown">Going to Hometown</option>
+                <option value="festival">Temple Festival</option>
+                <option value="sick">Sick</option>
+                <option value="other">Other</option>
+            </select><br>
+            <textarea id="otherReason" placeholder="Enter reason..." style="display: none;" required></textarea><br>
+        </div>
+    </form>
+      <button class="btn-primary" onclick="submitLeave()">Submit</button>
+      <button class="btn-secondary" onclick="showSection('optionsSection')">Back</button>
+    </div>
+
+    <!-- Meals Selection Section -->
+    <div id="mealsSection" class="hidden">
+      <h3>Meals Selection</h3>
+      <p>Student ID: <span id="mealsStudentId"></span></p>
+      <table>
+        <tr><td><input type="checkbox" id="morning"></td><td>Morning</td></tr>
+        <tr><td><input type="checkbox" id="afternoon"></td><td>Afternoon</td></tr>
+        <tr><td><input type="checkbox" id="snacks"></td><td>Snacks</td></tr>
+        <tr><td><input type="checkbox" id="dinner"></td><td>Dinner</td></tr>
+      </table><br>
+      <button class="btn-primary" onclick="submitMeals()">Confirm</button>
+      <button class="btn-secondary" onclick="showSection('optionsSection')">Back</button>
+    </div>
+  </div>
+  <script>
+    function showSection(id) {
+      ["studentIdSection", "optionsSection", "leaveSection", "mealsSection"].forEach(sec => 
+        document.getElementById(sec).classList.add("hidden"));
+      document.getElementById(id).classList.remove("hidden");
+
+      // Corrected Student ID display
+      const studentId = localStorage.getItem("studentId");
+      if (studentId) {
+        document.getElementById("leaveStudentId").textContent = studentId;
+        document.getElementById("mealsStudentId").textContent = studentId;
+      }
+    }
+
+    function submitId() {
+      const id = document.getElementById("studentId").value.trim();
+      if (!id) return alert("Enter a valid Student ID.");
+      localStorage.setItem("studentId", id);
+      showSection("optionsSection");
+    }
+
+    function submitLeave() {
+    const from = document.getElementById("fromDate").value.trim();
+    const to = document.getElementById("toDate").value.trim();
+    const room = document.getElementById("room").value.trim();
+    const reason = document.getElementById("reason").value.trim();
+
+    if (!from || !to || !room || !reason) 
+        return alert("Please fill all fields correctly.");
+
+    if (isNaN(new Date(from)) || isNaN(new Date(to))) 
+        return alert("Please enter valid dates.");
+
+    if (new Date(from) > new Date(to)) 
+        return alert("From Date cannot be later than To Date.");
+
+    if (room < 1 || room > 600) 
+        return alert("Room number is invalid");
+
+    alert(`Leave Submitted!\nRoom: ${room}\nFrom: ${from}\nTo: ${to}\nReason: ${reason}`);
+    showSection("optionsSection");
+    }
+
+    function toggleOtherReason() {
+        const reasonDropdown = document.getElementById("reasonDropdown");
+        const otherReason = document.getElementById("otherReason");
+
+        if (reasonDropdown.value === "other") {
+            otherReason.style.display = "block";
+            otherReason.required = true;
+        } else {
+            otherReason.style.display = "none";
+            otherReason.value = "";
+            otherReason.required = false;
+        }
+    }
+    function submitLeave() {
+    const from = document.getElementById("fromDate").value.trim();
+    const to = document.getElementById("toDate").value.trim();
+    const room = document.getElementById("room").value.trim();
+    const reasonDropdown = document.getElementById("reasonDropdown").value;
+    const otherReason = document.getElementById("otherReason").value.trim();
+
+    if (!from || !to || !room || (!reasonDropdown && !otherReason)) 
+        return alert("Please fill all fields correctly.");
+
+    if (isNaN(new Date(from)) || isNaN(new Date(to))) 
+        return alert("Please enter valid dates.");
+
+    if (new Date(from) > new Date(to)) 
+        return alert("From Date cannot be later than To Date.");
+
+    if (room < 1 || room > 600) 
+        return alert("Room number must be between 1 and 600.");
+
+    if (reasonDropdown === "other" && !otherReason) 
+        return alert("Please provide a valid reason for 'Other'.");
+
+    alert(`Leave Submitted!\nRoom: ${room}\nFrom: ${from}\nTo: ${to}\nReason: ${reasonDropdown === "other" ? otherReason : reasonDropdown}`);
+    showSection("optionsSection");
+}
+    function submitMeals() {
+      let selectedMeals = ["morning", "afternoon", "snacks", "dinner"].filter(meal => 
+        document.getElementById(meal).checked).map(meal => meal.charAt(0).toUpperCase() + meal.slice(1));
+
+      if (!selectedMeals.length) return alert("Select at least one meal.");
+
+      alert(`Meals Selected: ${selectedMeals.join(", ")}`);
+      showSection("optionsSection");
+    }
+
+    function resetApp() {
+      localStorage.removeItem("studentId");
+      document.getElementById("studentId").value = "";
+      showSection("studentIdSection");
+    }
+  </script>
+</body>
+</html>

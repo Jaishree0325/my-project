@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hostel Mess Fee Reduction Calculator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+        }
+        h2 {
+            text-align: center;
+        }
+        label {
+            font-size: 1rem;
+        }
+        input[type="number"] {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        input[type="button"] {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+        }
+        input[type="button"]:hover {
+            background-color: #45a049;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #e7f7e7;
+            border: 1px solid #4CAF50;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Hostel Mess Fee Reduction</h2>
+    
+    <label for="daysAttended">Number of Days Attended in Hostel Mess:</label>
+    <input type="number" id="daysAttended" placeholder="Enter number of days attended" required>
+    
+    <input type="button" value="Calculate Fee Reduction" onclick="calculateFee()">
+    
+    <div class="result" id="result" style="display: none;">
+        <p><strong>Reduced Fee:</strong> ₹<span id="reducedFee"></span></p>
+        <p><strong>Refund Amount:</strong> ₹<span id="refundAmount"></span></p>
+    </div>
+</div>
+
+<script>
+    function calculateFee() {
+        // Constants
+        const perMealFee = 50;
+        const mealsPerDay = 3;
+        const totalDaysInYear = 365;
+
+        // Get the number of days attended in the hostel mess
+        const daysAttended = parseInt(document.getElementById('daysAttended').value);
+
+        // Check for valid input
+        if (isNaN(daysAttended) || daysAttended < 0 || daysAttended > totalDaysInYear) {
+            alert("Please enter a valid number of days attended (between 0 and 365).");
+            return;
+        }
+
+        // Calculate the total number of meals attended
+        const totalMealsAttended = daysAttended * mealsPerDay;
+
+        // Calculate the reduced fee
+        const reducedFee = totalMealsAttended * perMealFee;
+
+        // Calculate the refund amount (assuming original fee is for the full year of 1095 meals)
+        const totalAnnualFee = totalDaysInYear * mealsPerDay * perMealFee;
+        const refundAmount = totalAnnualFee - reducedFee;
+
+        // Display the result
+        document.getElementById('reducedFee').innerText = reducedFee.toFixed(2);
+        document.getElementById('refundAmount').innerText = refundAmount.toFixed(2);
+        document.getElementById('result').style.display = 'block';
+    }
+</script>
+
+</body>
+</html>
