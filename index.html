@@ -74,7 +74,8 @@
                 <option value="sick">Sick</option>
                 <option value="other">Other</option>
             </select><br>
-            <textarea id="otherReason" placeholder="Enter reason..." style="display: none;" required></textarea><br>
+            <!-- <textarea id="otherReason" placeholder="Enter reason..." style="display: none;" required></textarea> -->
+            <textarea id="otherReason" placeholder="Enter reason..." style="display: block; margin: 0 auto;" required></textarea><br>
         </div>
     </form>
       <button class="btn-primary" onclick="submitLeave()">Submit</button>
@@ -109,34 +110,82 @@
       }
     }
 
-    function submitId() {
-      const id = document.getElementById("studentId").value.trim();
-      if (!id) return alert("Enter a valid Student ID.");
-      localStorage.setItem("studentId", id);
-      showSection("optionsSection");
-    }
+    let validIds = [];
+
+  fetch("http://localhost:3000/api/valid-ids")
+    .then(res => res.json())
+    .then(data => validIds = data.ids)
+    .catch(err => console.error("Failed to load IDs:", err));
+
+
+function submitId() {
+  const id = document.getElementById("studentId").value.trim();
+
+  // If the ID field is empty
+  if (!id) {
+    alert("Please enter your Student ID.");
+    return;
+  }
+
+  // Check if validIds list has been loaded
+  if (!validIds || validIds.length === 0) {
+    alert("Unable to load valid IDs. Please try again later.");
+    return;
+  }
+
+  // Check if the entered ID exists in the loaded list
+  if (!validIds.includes(id)) {
+    alert("Invalid Student ID. Please check and try again.");
+    document.getElementById("studentId").value = "";
+    return;
+  }
+
+  // Store the ID and show the next section
+  localStorage.setItem("studentId", id);
+  showSection("optionsSection");
+}
 
     function submitLeave() {
-    const from = document.getElementById("fromDate").value.trim();
-    const to = document.getElementById("toDate").value.trim();
-    const room = document.getElementById("room").value.trim();
-    const reason = document.getElementById("reason").value.trim();
+  const from = document.getElementById("fromDate").value.trim();
+  const to = document.getElementById("toDate").value.trim();
+  const room = document.getElementById("room").value.trim();
+  const reasonDropdown = document.getElementById("reasonDropdown").value;
+  const otherReason = document.getElementById("otherReason").value.trim();
 
-    if (!from || !to || !room || !reason) 
-        return alert("Please fill all fields correctly.");
+  const reason = reasonDropdown === "other" ? otherReason : reasonDropdown;
 
-    if (isNaN(new Date(from)) || isNaN(new Date(to))) 
-        return alert("Please enter valid dates.");
+  // Validation
+  if (!from || !to || !room || !reason) 
+    return alert("Please fill all fields correctly.");
 
-    if (new Date(from) > new Date(to)) 
-        return alert("From Date cannot be later than To Date.");
+  if (isNaN(new Date(from)) || isNaN(new Date(to))) 
+    return alert("Please enter valid dates.");
 
-    if (room < 1 || room > 600) 
-        return alert("Room number is invalid");
+  if (new Date(from) > new Date(to)) 
+    return alert("From Date cannot be later than To Date.");
 
-    alert(`Leave Submitted!\nRoom: ${room}\nFrom: ${from}\nTo: ${to}\nReason: ${reason}`);
-    showSection("optionsSection");
-    }
+  if (room < 1 || room > 600) 
+    return alert("Room number is invalid.");
+
+  alert(`Leave Submitted!\nRoom: ${room}\nFrom: ${from}\nTo: ${to}\nReason: ${reason}`);
+  showSection("optionsSection");
+
+  // Send to backend
+  fetch("http://localhost:3000/api/leave", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      studentId: localStorage.getItem("studentId"),
+      room,
+      fromDate: from,
+      toDate: to,
+      reason
+    }),
+  })
+  .then(res => res.json())
+  .then(data => console.log(" Server response:", data))
+  .catch(err => console.error(" Error:", err));
+}
 
     function toggleOtherReason() {
         const reasonDropdown = document.getElementById("reasonDropdown");
@@ -175,6 +224,26 @@
 
     alert(`Leave Submitted!\nRoom: ${room}\nFrom: ${from}\nTo: ${to}\nReason: ${reasonDropdown === "other" ? otherReason : reasonDropdown}`);
     showSection("optionsSection");
+
+
+    const payload = {
+  studentId: localStorage.getItem("studentId"),
+  room,
+  fromDate: from,
+  toDate: to,
+  reason: reasonDropdown === "other" ? otherReason : reasonDropdown,
+};
+
+fetch("http://localhost:3000/api/leave", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify(payload),
+})
+.then(res => res.json())
+.then(data => console.log("Leave response:", data))
+.catch(err => console.error("Error:", err));
+
+
 }
     function submitMeals() {
       let selectedMeals = ["morning", "afternoon", "snacks", "dinner"].filter(meal => 
@@ -184,12 +253,34 @@
 
       alert(`Meals Selected: ${selectedMeals.join(", ")}`);
       showSection("optionsSection");
+
+      const payload = {
+  studentId: localStorage.getItem("studentId"),
+  meals: selectedMeals,
+};
+
+fetch("http://localhost:3000/api/meals", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify(payload),
+})
+.then(res => res.json())
+.then(data => console.log("Meals response:", data))
+.catch(err => console.error("Error:", err));
+
+
     }
 
     function resetApp() {
       localStorage.removeItem("studentId");
       document.getElementById("studentId").value = "";
       showSection("studentIdSection");
+    }
+    function downloadCSV(type) {
+      const url = type === "leave"
+        ? "http://localhost:3000/files/leaveData.csv"
+        : "http://localhost:3000/files/mealData.csv";
+      window.open(url, "_blank");
     }
   </script>
 </body>

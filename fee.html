@@ -97,8 +97,17 @@
         document.getElementById('reducedFee').innerText = reducedFee.toFixed(2);
         document.getElementById('refundAmount').innerText = refundAmount.toFixed(2);
         document.getElementById('result').style.display = 'block';
+        fetch("http://localhost:3000/submit-days", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ daysAttended }),
+        })
+        .then(response => response.text())
+        .then(data => console.log("Server says:", data))
+        .catch(err => console.error("Error:", err));
     }
-</script>
-
+    </script>
 </body>
 </html>
