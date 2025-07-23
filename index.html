@@ -110,12 +110,12 @@
     }
 
     let validIds = [];
-
-  fetch("http://localhost:3000/api/valid-ids")
-    .then(res => res.json())
-    .then(data => validIds = data.ids)
-    .catch(err => console.error("Failed to load IDs:", err));
-
+fetch("validIds.json")
+  .then(res => res.json())
+  .then(data => {
+    validIds = data.map(row => row.studentId.toString().trim().toUpperCase());
+  })
+  .catch(err => console.error("Failed to load IDs:", err));
 
 function submitId() {
   const id = document.getElementById("studentId").value.trim();
