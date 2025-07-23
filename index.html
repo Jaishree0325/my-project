@@ -170,7 +170,7 @@ function submitId() {
   showSection("optionsSection");
 
   // Send to backend
-  fetch("http://localhost:3000/api/leave", {
+  fetch("http://192.168.11.39/api/leave", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
@@ -233,7 +233,7 @@ function submitId() {
   reason: reasonDropdown === "other" ? otherReason : reasonDropdown,
 };
 
-fetch("http://localhost:3000/api/leave", {
+fetch("http://192.168.11.39/api/leave", {
   method: "POST",
   headers: { "Content-Type": "application/json" },
   body: JSON.stringify(payload),
@@ -258,7 +258,7 @@ fetch("http://localhost:3000/api/leave", {
   meals: selectedMeals,
 };
 
-fetch("http://localhost:3000/api/meals", {
+fetch("http://192.168.11.39/api/meals", {
   method: "POST",
   headers: { "Content-Type": "application/json" },
   body: JSON.stringify(payload),
@@ -277,8 +277,8 @@ fetch("http://localhost:3000/api/meals", {
     }
     function downloadCSV(type) {
       const url = type === "leave"
-        ? "http://localhost:3000/files/leaveData.csv"
-        : "http://localhost:3000/files/mealData.csv";
+        ? "http://192.168.11.39/files/leaveData.csv"
+        : "http://192.168.11.39/files/mealData.csv";
       window.open(url, "_blank");
     }
   </script>

@@ -16,7 +16,7 @@ app.use(express.json());
 // Static access for CSV downloads
 app.use("/files", express.static(__dirname + "/routes"));
 
-// 🛣️ Mount leave & meal routes
+// Mount leave & meal routes
 app.use("/api/leave", leaveRoutes);
 app.use("/api/meals", mealRoutes);
 
@@ -27,5 +27,5 @@ app.get("/api/valid-ids", (req, res) => {
 
 // Start server
 app.listen(PORT, () => {
-  console.log(`Server running at http://localhost:${PORT}`);
+  console.log(`Server running at http://0.0.0.0:${PORT}`);
 });

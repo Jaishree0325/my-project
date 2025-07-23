@@ -97,7 +97,7 @@
         document.getElementById('reducedFee').innerText = reducedFee.toFixed(2);
         document.getElementById('refundAmount').innerText = refundAmount.toFixed(2);
         document.getElementById('result').style.display = 'block';
-        fetch("http://localhost:3000/submit-days", {
+        fetch("http://192.168.11.39/submit-days", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
