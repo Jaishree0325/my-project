@@ -69,13 +69,12 @@
             <label>Reason for Leave:</label>
             <select id="reasonDropdown" onchange="toggleOtherReason()" required>
                 <option value="">Select a reason</option>
-                <option value="hometown">Going to Hometown</option>
-                <option value="festival">Temple Festival</option>
-                <option value="sick">Sick</option>
-                <option value="other">Other</option>
+                <option value="Going to Hometown">Going to Hometown</option>
+                <option value="Temple Festival">Temple Festival</option>
+                <option value="Sick">Sick</option>
+                <option value="Other">Other</option>
             </select><br>
-            <!-- <textarea id="otherReason" placeholder="Enter reason..." style="display: none;" required></textarea> -->
-            <textarea id="otherReason" placeholder="Enter reason..." style="display: block; margin: 0 auto;" required></textarea><br>
+            <textarea id="otherReason" placeholder="Enter reason..." style="display:none; margin: 0 auto;" required></textarea><br>
         </div>
     </form>
       <button class="btn-primary" onclick="submitLeave()">Submit</button>
