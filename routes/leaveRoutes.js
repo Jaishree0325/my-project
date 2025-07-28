@@ -1,30 +1,34 @@
 const express = require("express");
 const router = express.Router();
-const fs = require("fs");
-const path = require("path");
+const Leave = require("../models/Leave"); // Sequelize model
 
-const filePath = path.join(process.cwd(), "leaveData.csv"); // saves to root folder
-const headers = "Student ID,Room,From,To,Reason\n";
-
-// Write headers if file doesn't exist
-if (!fs.existsSync(filePath)) {
-  fs.writeFileSync(filePath, headers);
-  console.log("Created leaveData.csv with headers");
-}
-
-// POST: Submit leave request
-router.post("/", (req, res) => {
+// 📨 POST: Submit leave request
+router.post("/", async (req, res) => {
   const { studentId, room, fromDate, toDate, reason } = req.body;
 
   if (!studentId || !room || !fromDate || !toDate || !reason) {
     return res.status(400).json({ message: "Missing required fields." });
   }
 
-  const newRow = `${studentId},${room},${fromDate},${toDate},${reason}\n`;
-  fs.appendFileSync(filePath, newRow);
-  console.log("Leave recorded:", newRow);
+  try {
+    const leave = await Leave.create({ studentId, room, fromDate, toDate, reason });
+    console.log("✅ Leave saved:", leave.toJSON());
+    res.status(201).json({ status: "Success", data: leave });
+  } catch (err) {
+    console.error("❌ Error saving leave:", err);
+    res.status(500).json({ message: "Database error." });
+  }
+});
 
-  res.status(200).json({ status: "Success", message: "Leave recorded!" });
+// 📥 GET: Retrieve all leave records
+router.get("/all", async (req, res) => {
+  try {
+    const leaves = await Leave.findAll();
+    res.status(200).json(leaves);
+  } catch (err) {
+    console.error("❌ Failed to fetch leaves:", err);
+    res.status(500).json({ message: "Database error." });
+  }
 });
 
 module.exports = router;

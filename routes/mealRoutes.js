@@ -1,30 +1,38 @@
 const express = require("express");
 const router = express.Router();
-const fs = require("fs");
-const path = require("path");
+const Meal = require("../models/Meal"); // Sequelize model
 
-const filePath = path.join(process.cwd(), "mealData.csv"); // saves to root folder
-const headers = "Student ID,Meals\n";
-
-// Write headers if file doesn't exist
-if (!fs.existsSync(filePath)) {
-  fs.writeFileSync(filePath, headers);
-  console.log("Created mealData.csv with headers");
-}
-
-// POST: Submit meal selections
-router.post("/", (req, res) => {
+// 📨 POST: Submit meal selections
+router.post("/", async (req, res) => {
   const { studentId, meals } = req.body;
 
   if (!studentId || !Array.isArray(meals) || meals.length === 0) {
     return res.status(400).json({ message: "Invalid meal data." });
   }
 
-  const newRow = `${studentId},${meals.join("|")}\n`;
-  fs.appendFileSync(filePath, newRow);
-  console.log("Meal row added:", newRow);
+  try {
+    const mealEntry = await Meal.create({
+      studentId,
+      meals,
+    });
 
-  res.status(200).json({ status: "Success", message: "Meal selection recorded!" });
+    console.log("✅ Meal recorded:", mealEntry.toJSON());
+    res.status(201).json({ status: "Success", data: mealEntry });
+  } catch (err) {
+    console.error("❌ Error saving meal:", err);
+    res.status(500).json({ message: "Database error." });
+  }
+});
+
+// 📥 GET: Retrieve all meal selections
+router.get("/all", async (req, res) => {
+  try {
+    const allMeals = await Meal.findAll();
+    res.status(200).json(allMeals);
+  } catch (err) {
+    console.error("❌ Failed to fetch meals:", err);
+    res.status(500).json({ message: "Database error." });
+  }
 });
 
 module.exports = router;
