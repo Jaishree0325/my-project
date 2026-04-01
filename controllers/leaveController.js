@@ -1,4 +1,5 @@
 const Leave = require("../models/Leave");
+const Student = require("../models/Student"); // ✅ ADD THIS
 
 // Submit leave request
 exports.submitLeave = async (req, res) => {
@@ -9,16 +10,34 @@ exports.submitLeave = async (req, res) => {
   }
 
   try {
-    const leave = await Leave.create({ studentId, room, fromDate, toDate, reason });
+    // ✅ NEW: Check if student exists in DB
+    const student = await Student.findOne({
+      where: { studentId }
+    });
+
+    if (!student) {
+      return res.status(400).json({ message: "Invalid student ID" });
+    }
+
+    // ✅ Only create leave if valid student
+    const leave = await Leave.create({
+      studentId,
+      room,
+      fromDate,
+      toDate,
+      reason
+    });
+
     console.log("Leave saved:", leave.toJSON());
     res.status(201).json({ status: "Success", data: leave });
+
   } catch (err) {
     console.error("Error saving leave:", err);
     res.status(500).json({ message: "Database error." });
   }
 };
 
-// Get all leave records
+// ✅ ADD THIS BACK
 exports.getAllLeaves = async (req, res) => {
   try {
     const leaves = await Leave.findAll();

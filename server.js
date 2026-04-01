@@ -5,14 +5,16 @@ require("dotenv").config();
 
 const sequelize = require("./config/db");
 
-// Load valid student IDs from Excel
-const getValidIds = require("./utils/loadValidIds");
-const validIds = getValidIds(); // Loaded once at server start
-
 // Import models to sync with DB
 const Student = require("./models/Student");
 const Leave = require("./models/Leave");
 const Meal = require("./models/Meal");
+
+Student.hasMany(Leave, { foreignKey: "studentId" });
+Leave.belongsTo(Student, { foreignKey: "studentId" });
+
+Student.hasMany(Meal, { foreignKey: "studentId" });
+Meal.belongsTo(Student, { foreignKey: "studentId" });
 
 // Import routes
 const leaveRoutes = require("./routes/leaveRoutes");
@@ -33,22 +35,25 @@ app.use("/files", express.static(path.join(__dirname, "public/files")));
 app.use("/api/leave", leaveRoutes);
 app.use("/api/meals", mealRoutes);
 
-// Validate student ID against Excel list
-app.get("/api/valid-ids", (req, res) => {
-  res.json({ ids: validIds });
+
+app.post("/api/students", async (req, res) => {
+  try {
+    const { studentId, name, room } = req.body;
+
+    const student = await Student.create({ studentId, name, room });
+
+    res.status(201).json(student);
+  } catch (err) {
+    res.status(500).json({ message: "Error adding student" });
+  }
 });
 
-// Optional seed route (can be removed later)
-app.get("/api/seed", async (req, res) => {
+app.get("/api/students", async (req, res) => {
   try {
-    await Student.bulkCreate([
-      { studentId: "S1001", name: "Arun", room: 101 },
-      { studentId: "S1002", name: "Priya", room: 203 },
-      { studentId: "S1003", name: "Karthik", room: 305 },
-    ]);
-    res.json({ message: "Seeded successfully" });
+    const students = await Student.findAll();
+    res.json(students);
   } catch (err) {
-    res.status(500).json({ error: "Seed failed" });
+    res.status(500).json({ message: "Error fetching students" });
   }
 });
 

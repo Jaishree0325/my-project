@@ -1,4 +1,5 @@
 const Meal = require("../models/Meal");
+const Student = require("../models/Student"); // ✅ ADD THIS
 
 // POST: Submit meal selections
 exports.submitMeal = async (req, res) => {
@@ -9,9 +10,21 @@ exports.submitMeal = async (req, res) => {
   }
 
   try {
+    // ✅ NEW: Validate student from DB
+    const student = await Student.findOne({
+      where: { studentId }
+    });
+
+    if (!student) {
+      return res.status(400).json({ message: "Invalid student ID" });
+    }
+
+    // ✅ Save only if valid
     const mealEntry = await Meal.create({ studentId, meals });
+
     console.log("Meal recorded:", mealEntry.toJSON());
     res.status(201).json({ status: "Success", data: mealEntry });
+
   } catch (err) {
     console.error("Error saving meal:", err);
     res.status(500).json({ message: "Database error." });
