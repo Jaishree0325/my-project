@@ -79,6 +79,10 @@
 </div>
 
 <script>
+  
+  const BASE_URL = "https://hostel-oba8.onrender.com";
+
+
 function showSection(id) {
   ["studentIdSection","optionsSection","leaveSection","mealsSection"]
     .forEach(sec => document.getElementById(sec).classList.add("hidden"));
@@ -97,7 +101,7 @@ function submitId() {
 
   if (!id) return alert("Please enter your Student ID.");
 
-  fetch("http://localhost:3000/api/students")
+  fetch(`${BASE_URL}/api/students`)
     .then(res => res.json())
     .then(data => {
       const exists = data.some(s => s.studentId == id);
@@ -129,7 +133,7 @@ function submitLeave() {
   if (new Date(from) > new Date(to))
     return alert("From Date cannot be later than To Date.");
 
-  fetch("http://localhost:3000/api/leave", {
+  fetch(`${BASE_URL}/api/leave`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
@@ -163,7 +167,7 @@ function submitMeals() {
 
   if (!meals.length) return alert("Select at least one meal.");
 
-  fetch("http://localhost:3000/api/meals", {
+  fetch(`${BASE_URL}/api/meals`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
